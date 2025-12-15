@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../widgets/project_card.dart';
+import '../../../logic/project/project_notifier.dart';
+import '../create_project/create_project_screen.dart';
+import '../project_details/project_details_screen.dart';
+import '../session_history/session_history_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
+  // Changed to ConsumerWidget
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the project list
+    final projects = ref.watch(projectProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -15,10 +24,12 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Header
+              // ... [Keep Header and Focus Time Card from Day 2] ...
+              // (I will omit them here for brevity, but keep them in your code)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Left side: Greeting
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -41,14 +52,40 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.notifications_none, color: AppColors.textPrimary),
+
+                  // Right side: Actions
+                  Row(
+                    children: [
+                      // --- NEW TEMPORARY HISTORY BUTTON ---
+                      IconButton(
+                        icon: const Icon(Icons.history, size: 28),
+                        color: AppColors.textPrimary,
+                        tooltip: "View History",
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const SessionHistoryScreen()),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // Existing Notification Icon
+                      const CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.notifications_none,
+                            color: AppColors.textPrimary),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
 
+              const SizedBox(height: 24),
+              
               // 2. Focus Time Card (The Big Purple One)
               Container(
                 width: double.infinity,
@@ -105,57 +142,69 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 32),
 
-              // 3. Active Projects Section
-              const Row(
+              // Active Projects Header
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Active Projects",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "View All",
-                    style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
-                  ),
+                  const Text("Active Projects",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text("View All",
+                      style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600)),
                 ],
               ),
               const SizedBox(height: 16),
 
-              // 4. Project List (Using our Widget)
-              const ProjectCard(
-                title: "Learn SwiftUI",
-                subtitle: "12h this week",
-                tag: "DEV",
-                icon: Icons.code,
-                iconColor: Colors.blue,
-                iconBgColor: Color(0xFFE8F1FF),
-                streakCount: 5,
-              ),
-              const ProjectCard(
-                title: "Design Portfolio",
-                subtitle: "4h this week",
-                tag: "WORK",
-                icon: Icons.brush,
-                iconColor: Colors.purple,
-                iconBgColor: Color(0xFFF3E8FF),
-                streakCount: 2,
-              ),
-               const ProjectCard(
-                title: "Reading",
-                subtitle: "1h this week",
-                tag: "HABIT",
-                icon: Icons.book,
-                iconColor: Colors.orange,
-                iconBgColor: Color(0xFFFFF4E5),
-                streakCount: 12,
-              ),
+              // DYNAMIC PROJECT LIST
+              projects.isEmpty
+                  ? const Center(child: Text("No projects yet. Create one!"))
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: projects.length,
+                      itemBuilder: (context, index) {
+                        final project = projects[index];
+                        final color =
+                            AppColors.projectColors[project.colorIndex];
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ProjectDetailsScreen(project: project),
+                              ),
+                            );
+                          },
+                          child: ProjectCard(
+                            title: project.name,
+                            subtitle:
+                                "${(project.weeklyGoalMinutes / 60).toInt()}h weekly goal",
+                            tag: project.category,
+                            icon: Icons.work,
+                            iconColor: color,
+                            iconBgColor: color.withOpacity(0.1),
+                            streakCount: 0,
+                          ),
+                        );
+                      },
+                    ),
             ],
           ),
         ),
       ),
-      // Floating Action Button
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          // Navigate to Create Project Screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const CreateProjectScreen()),
+          );
+        },
         backgroundColor: AppColors.primary,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white, size: 32),
