@@ -6,18 +6,21 @@ class TimerState {
   final int elapsedSeconds;
   final bool isRunning;
   final bool isPaused;
+  final DateTime? startedAt; 
 
   TimerState({
     this.elapsedSeconds = 0,
     this.isRunning = false,
     this.isPaused = false,
+    this.startedAt,
   });
 
-  TimerState copyWith({int? elapsedSeconds, bool? isRunning, bool? isPaused}) {
+  TimerState copyWith({int? elapsedSeconds, bool? isRunning, bool? isPaused,DateTime? startedAt,}) {
     return TimerState(
       elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
       isRunning: isRunning ?? this.isRunning,
       isPaused: isPaused ?? this.isPaused,
+      startedAt: startedAt ?? this.startedAt,
     );
   }
 }
@@ -31,7 +34,7 @@ class TimerNotifier extends StateNotifier<TimerState> {
   void startTimer() {
     if (state.isRunning) return;
 
-    state = state.copyWith(isRunning: true, isPaused: false);
+    state = state.copyWith(isRunning: true, isPaused: false, startedAt: DateTime.now());
     _ticker = Timer.periodic(const Duration(seconds: 1), (timer) {
       state = state.copyWith(elapsedSeconds: state.elapsedSeconds + 1);
     });

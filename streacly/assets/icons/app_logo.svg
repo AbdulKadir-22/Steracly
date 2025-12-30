@@ -1,0 +1,42 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="mainGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5B5EFC" />
+      <stop offset="100%" stop-color="#9DA5FF" />
+    </linearGradient>
+    <linearGradient id="tealGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#56EBD6" />
+      <stop offset="100%" stop-color="#95F5C8" />
+    </linearGradient>
+
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="12" result="blur" />
+      <feOffset in="blur" dx="0" dy="8" result="offsetBlur" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.25" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <g transform="rotate(30 256 256)">
+      <rect x="216" y="216" width="80" height="80" rx="20" fill="url(#mainGradient)" />
+      <path d="M 380 256 A 124 124 0 1 0 256 380 A 124 124 0 0 0 380 256" 
+      stroke="url(#mainGradient)" 
+      stroke-width="50" 
+      stroke-linecap="round" 
+      stroke-dasharray="590" 
+      stroke-dashoffset="0"
+      transform="rotate(256 256 256)" 
+      fill="none"/>
+
+    </g>
+
+    <rect x="295" y="175" width="55" height="55" rx="15" fill="url(#tealGradient)" />
+    <rect x="350" y="115" width="65" height="65" rx="15" fill="url(#tealGradient)" opacity="0.8" />
+  </g>
+</svg>

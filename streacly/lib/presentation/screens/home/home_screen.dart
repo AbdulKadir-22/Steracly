@@ -3,18 +3,57 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../widgets/project_card.dart';
 import '../../../logic/project/project_notifier.dart';
+import '../../../logic/session/session_notifier.dart'; // Import Session Provider
 import '../create_project/create_project_screen.dart';
 import '../project_details/project_details_screen.dart';
 import '../session_history/session_history_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
-  // Changed to ConsumerWidget
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch the project list
+    // 1. Watch providers
     final projects = ref.watch(projectProvider);
+    final allSessions = ref.watch(sessionProvider);
+
+    // 2. Calculate "Today's Focus Time"
+    final now = DateTime.now();
+    final todaySessions = allSessions.where((session) {
+      return session.startTime.year == now.year &&
+          session.startTime.month == now.month &&
+          session.startTime.day == now.day;
+    });
+
+    int todaySeconds = 0;
+    for (var session in todaySessions) {
+      todaySeconds += session.durationSeconds;
+    }
+
+    final int focusHours = todaySeconds ~/ 3600;
+    final int focusMinutes = (todaySeconds % 3600) ~/ 60;
+
+    // 3. Calculate "Daily Goal" (Sum of all project weekly goals / 7 days)
+    // Default to 6 hours if no projects exist
+    int totalWeeklyGoalMinutes = 0;
+    for (var project in projects) {
+      totalWeeklyGoalMinutes += project.weeklyGoalMinutes;
+    }
+    
+    // If we have projects, calculate daily average, otherwise default 360m (6h)
+    final int dailyGoalMinutes = projects.isEmpty 
+        ? 360 
+        : (totalWeeklyGoalMinutes / 7).round();
+        
+    final int goalHours = dailyGoalMinutes ~/ 60;
+    final int goalMins = dailyGoalMinutes % 60;
+
+    // Greeting Date Logic
+    // (Optional: You can use intl package here for real formatting later)
+    // For now we keep the structure but you can make this dynamic easily
+    final List<String> weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+    final List<String> months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    final String dateString = "${weekdays[now.weekday - 1]}, ${months[now.month - 1]} ${now.day}";
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -24,26 +63,24 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ... [Keep Header and Focus Time Card from Day 2] ...
-              // (I will omit them here for brevity, but keep them in your code)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Left side: Greeting
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "WEDNESDAY, OCT 24",
-                        style: TextStyle(
+                        dateString, // Dynamic Date
+                        style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textSecondary,
                             letterSpacing: 1.0),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        "Hello, Alex",
+                      const SizedBox(height: 4),
+                      const Text(
+                        "Hello, Ariont",
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
@@ -56,7 +93,6 @@ class HomeScreen extends ConsumerWidget {
                   // Right side: Actions
                   Row(
                     children: [
-                      // --- NEW TEMPORARY HISTORY BUTTON ---
                       IconButton(
                         icon: const Icon(Icons.history, size: 28),
                         color: AppColors.textPrimary,
@@ -70,10 +106,7 @@ class HomeScreen extends ConsumerWidget {
                           );
                         },
                       ),
-
                       const SizedBox(width: 8),
-
-                      // Existing Notification Icon
                       const CircleAvatar(
                         backgroundColor: Colors.white,
                         child: Icon(Icons.notifications_none,
@@ -85,13 +118,13 @@ class HomeScreen extends ConsumerWidget {
               ),
 
               const SizedBox(height: 24),
-              
+
               // 2. Focus Time Card (The Big Purple One)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE0E1FF), // Light purple bg from design
+                  color: const Color(0xFFE0E1FF),
                   borderRadius: BorderRadius.circular(32),
                   border: Border.all(color: Colors.white, width: 2),
                 ),
@@ -106,32 +139,48 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     RichText(
-                      text: const TextSpan(
-                        style: TextStyle(color: Color(0xFF1A1C24), height: 1),
+                      text: TextSpan(
+                        style: const TextStyle(color: Color(0xFF1A1C24), height: 1),
                         children: [
-                          TextSpan(text: "5", style: TextStyle(fontSize: 64, fontWeight: FontWeight.bold)),
-                          TextSpan(text: "h ", style: TextStyle(fontSize: 32, fontWeight: FontWeight.w500)),
-                          TextSpan(text: "12", style: TextStyle(fontSize: 64, fontWeight: FontWeight.bold)),
-                          TextSpan(text: "m", style: TextStyle(fontSize: 32, fontWeight: FontWeight.w500)),
+                          TextSpan(
+                              text: "$focusHours",
+                              style: const TextStyle(
+                                  fontSize: 64, fontWeight: FontWeight.bold)),
+                          const TextSpan(
+                              text: "h ",
+                              style: TextStyle(
+                                  fontSize: 32, fontWeight: FontWeight.w500)),
+                          TextSpan(
+                              text: "$focusMinutes",
+                              style: const TextStyle(
+                                  fontSize: 64, fontWeight: FontWeight.bold)),
+                          const TextSpan(
+                              text: "m",
+                              style: TextStyle(
+                                  fontSize: 32, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     ),
                     const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.trending_up, size: 16, color: AppColors.primary),
-                          SizedBox(width: 8),
+                          const Icon(Icons.trending_up,
+                              size: 16, color: AppColors.primary),
+                          const SizedBox(width: 8),
                           Text(
-                            "Daily Goal: 6h 00m",
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF5A5C75)),
+                            "Daily Goal: ${goalHours}h ${goalMins.toString().padLeft(2, '0')}m",
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF5A5C75)),
                           ),
                         ],
                       ),
@@ -186,7 +235,7 @@ class HomeScreen extends ConsumerWidget {
                             tag: project.category,
                             icon: Icons.work,
                             iconColor: color,
-                            iconBgColor: color.withOpacity(0.1),
+                            iconBgColor: color.withValues(alpha: 0.1),
                             streakCount: 0,
                           ),
                         );
@@ -198,7 +247,6 @@ class HomeScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to Create Project Screen
           Navigator.push(
             context,
             MaterialPageRoute(

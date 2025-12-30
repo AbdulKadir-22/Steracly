@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../home/home_screen.dart';
+// import '../home/home_screen.dart';
 import '../../widgets/primary_button.dart';
 import '../../../core/constants/app_colors.dart';
+import '../main_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -54,7 +55,7 @@ class OnboardingScreen extends StatelessWidget {
                   // Navigate to Home
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    MaterialPageRoute(builder: (context) => const MainScreen()),
                   );
                 },
               ),

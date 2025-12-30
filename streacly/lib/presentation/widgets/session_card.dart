@@ -20,9 +20,9 @@ class SessionCard extends StatelessWidget {
 
     if (hours > 0) durationText += "${hours}h ";
     if (minutes > 0) durationText += "${minutes}m ";
-    if (seconds > 0 && hours == 0)
+    if (seconds > 0 && hours == 0){
       durationText += "${seconds}s"; // Only show seconds if short
-
+    }
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),

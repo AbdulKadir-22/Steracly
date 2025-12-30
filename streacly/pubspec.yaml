@@ -18,6 +18,8 @@ dependencies:
   google_fonts: ^6.1.0
   uuid: ^4.4.0
   intl: ^0.19.0
+  flutter_heatmap_calendar: ^1.0.5
+  flutter_svg: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -26,8 +28,15 @@ dev_dependencies:
   hive_generator: ^2.0.1  # Compatible with hive ^2.2.3
   build_runner: ^2.4.6
   analyzer: <9.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/streacly_logo.png
+    - assets/icons/Streacly_Logo.png
+    - assets/icons/app_logo.svg
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/Streacly_Logo.png"

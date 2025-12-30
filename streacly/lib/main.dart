@@ -7,7 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'core/constants/app_colors.dart';
 
 // Screens
-import 'presentation/screens/onboarding/onboarding_screen.dart';
+// import 'presentation/screens/onboarding/onboarding_screen.dart';
+import 'presentation/screens/main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
       ),
       title: 'Streakly',
       debugShowCheckedModeBanner: false,
-      home: const OnboardingScreen(),
+      home: const MainScreen(),
     );
   }
 }

@@ -8,7 +8,7 @@ import '../../../logic/session/session_notifier.dart';
 import '../../widgets/primary_button.dart';
 import '../timer/timer_screen.dart';
 import '../manual_entry/manual_entry_screen.dart';
-import '../heatmap/heatmap_screen.dart'; // We will build this Day 6
+// import '../heatmap/heatmap_screen.dart'; // We will build this Day 6
 
 class ProjectDetailsScreen extends ConsumerWidget {
   final ProjectModel project;
